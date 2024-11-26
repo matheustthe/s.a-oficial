@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./cadastro.css">
+    <title>Minha Área</title>
+    <script>
+        const likedSongs = JSON.parse(localStorage.getItem('likedSongs')) || [];
+        const playlists = JSON.parse(localStorage.getItem('playlists')) || [];
+
+        // Função para exibir as músicas curtidas
+        function displayLikedSongs() {
+            const likedListElement = document.getElementById('likedSongs');
+            likedListElement.innerHTML = '';
+            if (likedSongs.length === 0) {
+                likedListElement.innerHTML = '<li><em>Nenhuma música curtida ainda.</em></li>';
+            } else {
+                likedSongs.forEach(song => {
+                    const li = document.createElement('li');
+                    li.textContent = song;
+                    likedListElement.appendChild(li);
+                });
+            }
+        }
+
+        // Função para exibir as playlists
+        function displayPlaylists() {
+            const playlistsElement = document.getElementById('playlists');
+            playlistsElement.innerHTML = '';
+            if (playlists.length === 0) {
+                playlistsElement.innerHTML = '<li><em>Nenhuma playlist criada ainda.</em></li>';
+            } else {
+                playlists.forEach((playlist, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <strong>${playlist.name}</strong><br>
+                        Músicas: ${playlist.songs.join(', ')}
+                        <button onclick="playPlaylist(${index})">Tocar Playlist</button>
+                        <button onclick="removePlaylist(${index})">Remover Playlist</button>
+                        <button onclick="addSongToPlaylist(${index})">Adicionar Música à Playlist</button>
+                    `;
+                    playlistsElement.appendChild(li);
+                });
+            }
+        }
+
+        // Função para adicionar uma nova playlist
+        function addPlaylist() {
+            const playlistName = prompt("Nome da nova playlist:");
+            
+            const newPlaylist = {
+                name: playlistName,
+                songs: [] // Inicia com uma lista de músicas vazia
+            };
+            playlists.push(newPlaylist);
+            localStorage.setItem('playlists', JSON.stringify(playlists));
+
+            displayPlaylists();
+        }
+
+        // Função para remover uma playlist
+        function removePlaylist(index) {
+            if (confirm("Tem certeza de que deseja excluir esta playlist?")) {
+                playlists.splice(index, 1);
+                localStorage.setItem('playlists', JSON.stringify(playlists));
+                displayPlaylists();
+            }
+        }
+
+        // Função para adicionar uma música à playlist
+        function addSongToPlaylist(playlistIndex) {
+            const songUrl = prompt("Digite o link ou caminho do arquivo MP3 da nova música:");
+
+            // Verifica se o link é um MP3
+            if (songUrl && songUrl.endsWith('.mp3')) {
+                playlists[playlistIndex].songs.push(songUrl);
+                localStorage.setItem('playlists', JSON.stringify(playlists));
+                alert('Música adicionada com sucesso à playlist!');
+                displayPlaylists();
+            } else {
+                alert('Por favor, insira um link válido para um arquivo MP3.');
+            }
+        }
+
+        // Função para tocar uma playlist
+        function playPlaylist(index) {
+            const playlist = playlists[index];
+            const musicPlayer = document.getElementById('musicPlayer');
+            musicPlayer.innerHTML = ''; // Limpa o player
+
+            playlist.songs.forEach((song, i) => {
+                const songButton = document.createElement('button');
+                songButton.textContent = `Tocar Música ${i + 1}: ${song}`;
+                songButton.onclick = () => playSong(song, index, i); // Passa também o índice da música
+                musicPlayer.appendChild(songButton);
+                
+                const removeButton = document.createElement('button');
+                removeButton.textContent = 'Remover Música';
+                removeButton.onclick = () => removeSongFromPlaylist(index, i); // Remover a música específica
+                musicPlayer.appendChild(removeButton);
+            });
+        }
+
+        // Função para remover uma música de uma playlist
+        function removeSongFromPlaylist(playlistIndex, songIndex) {
+            if (confirm("Tem certeza de que deseja remover esta música?")) {
+                playlists[playlistIndex].songs.splice(songIndex, 1);
+                localStorage.setItem('playlists', JSON.stringify(playlists));
+                displayPlaylists();
+                alert('Música removida da playlist!');
+            }
+        }
+
+        // Função para tocar uma música (simples, apenas exibindo um link ou arquivo MP3)
+        function playSong(song, playlistIndex, songIndex) {
+            const musicPlayer = document.getElementById('musicPlayer');
+            musicPlayer.innerHTML = ''; // Limpa qualquer player anterior
+
+            // Verifica se a música é um arquivo MP3 ou um link de streaming
+            if (song.endsWith('.mp3')) {
+                // Cria um player de áudio para MP3
+                const audioPlayer = document.createElement('audio');
+                audioPlayer.controls = true;
+                audioPlayer.src = song; // Define o caminho da música MP3
+
+                // Adiciona o player ao DOM
+                musicPlayer.appendChild(audioPlayer);
+                audioPlayer.play(); // Inicia a reprodução
+            } else {
+                // Caso a música seja um link (exemplo do SoundCloud ou qualquer link de streaming)
+                const linkElement = document.createElement('a');
+                linkElement.href = song;
+                linkElement.target = '_blank'; // Abre em nova aba
+                linkElement.textContent = `Tocar música: ${song}`;
+                musicPlayer.appendChild(linkElement);
+            }
+        }
+
+        // Função para limpar as playlists
+        function clearPlaylists() {
+            if (confirm("Tem certeza de que deseja excluir todas as playlists?")) {
+                localStorage.removeItem('playlists');
+                playlists.length = 0; // Limpa a lista local
+                displayPlaylists();
+            }
+        }
+
+        window.onload = function() {
+            displayLikedSongs();
+            displayPlaylists();
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="imagem.png" alt="Logo" height="80px" width="80px">
+            <nav>
+                <ul>
+                    <li><a href="../SITE-S.A-KK/cadastro2.html">Cadastro de Música</a></li>
+                    <li><a href="minha_area.html">Minha Área</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="content">
+        <h1>Minha Área</h1>
+
+        <section>
+            <h2>Músicas Curtidas</h2>
+            <ul id="likedSongs"></ul>
+        </section>
+
+        <section>
+            <h2>Playlists Pessoais</h2>
+            <ul id="playlists"></ul>
+            <div class="buttons">
+                <button onclick="addPlaylist()">Criar Playlist</button>
+                <button onclick="clearPlaylists()">Limpar Playlists</button>
+            </div>
+        </section>
+
+        <section>
+            <h2>Reproduzir Música</h2>
+            <div id="musicPlayer"></div>
+        </section>
+    </div>
+</body>
+</html>

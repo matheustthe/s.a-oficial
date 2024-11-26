@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Cadastro</title>
+    <style>
+        /* Use o mesmo CSS do login.html */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #000000, #dd0e0e);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            width: 400px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #4d0c0c;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        input:focus {
+            border-color: #f11d1d;
+            outline: none;
+            box-shadow: 0 0 5px rgba(221, 11, 11, 0.5);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #c42323;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: hsl(0, 0%, 0%);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        a {
+            color: #b30000;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Cadastro</h2>
+        <form id="registerForm">
+            <input type="text" name="username" placeholder="Nome de Usuário" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <div class="footer">
+            <p>Já possui uma conta? <a href="index.html">Faça login</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const username = this.username.value;
+            const email = this.email.value;
+            const password = this.password.value;
+
+            // Verifica se já existe um usuário com o mesmo email
+            if (localStorage.getItem(email)) {
+                alert('Este email já está cadastrado.');
+                return;
+            }
+
+            // Salva os dados no localStorage usando o email como chave
+            localStorage.setItem(email, JSON.stringify({ username, email, password }));
+
+            alert('Usuário cadastrado com sucesso!');
+            window.location.href = 'index.html'; // Redireciona para a página de login
+        });
+    </script>
+</body>
+</html>

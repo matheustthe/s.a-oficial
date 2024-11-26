@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Músicas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #000000; /* Cabeçalho totalmente preto */
+            padding: 10px 0;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        header img {
+            height: 50px;
+        }
+
+        header nav ul {
+            display: flex;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        header nav ul li {
+            margin-left: 20px;
+        }
+
+        header nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        header nav ul li a:hover {
+            background-color: #e50914; /* Cor de fundo ao passar o mouse */
+        }
+
+        .content {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .content input {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: 80%;
+        }
+
+        .content button {
+            padding: 10px 20px;
+            background-color: #e50914;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        .content button:hover {
+            background-color: #b20710;
+        }
+
+        #musicPlayer {
+            margin-top: 20px;
+        }
+
+        ul#playlist {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        ul#playlist li {
+            padding: 10px;
+            margin: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        ul#playlist li button {
+            background-color: #e50914;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        ul#playlist li button:hover {
+            background-color: #b20710;
+        }
+
+        .button-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="imagem.png" alt="Strayth">
+            <nav>
+                <ul>
+                    <li><a href="../SITE-S.A-KK/pesquisa.html">PESQUISA</a></li>
+                    <li><a href="../SITE-S.A-KK/emAlta.html">PÁGINA INICIAL</a></li>
+                    <li><a href="../SITE-S.A-KK/cadastro2.html">CADASTRO DE MÚSICA</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="content">
+        <h1>Reprodutor de Música - Playlist</h1>
+        <p>Insira o link da música (MP3) abaixo:</p>
+        <input type="text" id="musicLink" placeholder="Cole o link da música aqui" />
+        <input type="text" id="musicName" placeholder="Nome da música" />
+        <input type="text" id="musicArtist" placeholder="Nome do artista" />
+        <button id="addButton">Adicionar Música</button>
+
+        <ul id="playlist"></ul>
+        <div class="button-container">
+            <button id="nextButton" style="display:none;">Próxima Música</button>
+            <button id="clearButton" style="display:none;">Limpar Música</button>
+        </div>            
+        <div id="musicPlayer"></div>
+    </div>
+
+    <script>
+        let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
+        let currentSongIndex = -1;
+        let currentAudio = null;
+        const musicPlayer = document.getElementById('musicPlayer');
+
+        // Atualiza a lista de músicas no localStorage
+        function updatePlaylistDisplay() {
+            const playlistElement = document.getElementById('playlist');
+            playlistElement.innerHTML = '';
+            playlist.forEach((music, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${music.name} - ${music.artist}`;
+                const playButton = document.createElement('button');
+                playButton.textContent = 'Tocar';
+                playButton.addEventListener('click', () => playSong(index));
+                listItem.appendChild(playButton);
+                playlistElement.appendChild(listItem);
+            });
+        }
+
+        // Função para adicionar música
+        document.getElementById('addButton').addEventListener('click', function() {
+            const link = document.getElementById('musicLink').value;
+            const name = document.getElementById('musicName').value;
+            const artist = document.getElementById('musicArtist').value;
+
+            if (link && name && artist) {
+                const music = { link, name, artist };
+                playlist.push(music);
+                localStorage.setItem('playlist', JSON.stringify(playlist));
+                updatePlaylistDisplay();
+
+                // Limpa os campos de entrada
+                document.getElementById('musicLink').value = '';
+                document.getElementById('musicName').value = '';
+                document.getElementById('musicArtist').value = '';
+            }
+        });
+
+        // Função para tocar a música
+        function playSong(index) {
+            currentSongIndex = index;
+            const music = playlist[index];
+            musicPlayer.innerHTML = '';
+
+            const audio = document.createElement('audio');
+            audio.controls = true;
+            audio.autoplay = true;
+
+            const source = document.createElement('source');
+            source.src = music.link;
+            source.type = 'audio/mpeg';
+            audio.appendChild(source);
+            musicPlayer.appendChild(audio);
+
+            currentAudio = audio;
+
+            audio.onended = playNextSong;
+            document.getElementById('nextButton').style.display = 'inline';
+            document.getElementById('clearButton').style.display = 'inline';
+        }
+
+        // Função para tocar a próxima música
+        function playNextSong() {
+            if (currentSongIndex < playlist.length - 1) {
+                playSong(currentSongIndex + 1);
+            } else {
+                currentSongIndex = -1;
+                musicPlayer.innerHTML = '';
+                document.getElementById('nextButton').style.display = 'none';
+                document.getElementById('clearButton').style.display = 'none';
+            }
+        }
+
+        // Função para limpar a música atual
+        document.getElementById('clearButton').addEventListener('click', function() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+            }
+            musicPlayer.innerHTML = '';
+            document.getElementById('nextButton').style.display = 'none';
+            document.getElementById('clearButton').style.display = 'none';
+        });
+
+        // Carrega a playlist ao carregar a página
+        window.onload = function() {
+            updatePlaylistDisplay();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Login</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #000000, #ff0000);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #fff;
+        }
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            width: 400px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #580505;
+        }
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        input:focus {
+            border-color: #fd2525;
+            outline: none;
+            box-shadow: 0 0 5px rgba(228, 61, 61, 0.5);
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #ff1818;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #c539ae;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+        a {
+            color: #c91f1f;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <div class="footer">
+            <p>Não possui uma conta? <a href="cadastro.html">Cadastre-se</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const email = this.email.value;
+            const password = this.password.value;
+
+            // Recuperar os dados do localStorage
+            const user = JSON.parse(localStorage.getItem(email));
+
+            // Verificar credenciais
+            if (user && user.password === password) {
+                alert('Login realizado com sucesso!');
+                
+                // Armazenar o email do usuário logado no localStorage para referência em outras páginas
+                localStorage.setItem('loggedInUser', email);
+
+                // Redireciona para a página "emAlta.html"
+                // Se "emAlta.html" estiver na mesma pasta
+                window.location.href = 'emAlta.html';
+                
+                // Se "emAlta.html" estiver dentro de uma pasta chamada 'pasta_destino', por exemplo
+                // window.location.href = 'pasta_destino/emAlta.html';
+            } else {
+                alert('Email ou senha incorretos!');
+            }
+        });
+    </script>
+</body>
+</html>

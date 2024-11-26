@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Armazenamento de Dados</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #ec1c00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #b42020;
+        }
+        .user-info p {
+            font-size: 16px;
+            margin: 5px 0;
+        }
+        input[type="file"] {
+            margin-top: 20px;
+        }
+        #profilePicDisplay img {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #5e5555;
+            color: rgb(255, 255, 255);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Bem-vindo ao Armazenamento de Dados</h2>
+
+        <div id="userInfo" class="user-info"></div>
+        
+        <input type="file" id="profilePic" accept="image/*">
+        <button id="saveProfilePic">Salvar Foto de Perfil</button>
+
+        <div id="profilePicDisplay"></div>
+        <button onclick="logout()"><a href="index.html">SAIR</a></button><a href="index.html"></a>
+    </div>
+
+    <script>
+        // Verifica se o usuário está logado
+        const email = localStorage.getItem('loggedInUser');
+        if (!email) {
+            alert('Você precisa estar logado para acessar essa página');
+            window.location.href = 'login.html';
+        }
+
+        // Exibir informações do usuário
+        const user = JSON.parse(localStorage.getItem(email));
+        const userInfoDiv = document.getElementById('userInfo');
+        const profilePicDisplay = document.getElementById('profilePicDisplay');
+
+        userInfoDiv.innerHTML = `<p>Nome de Usuário: ${user.username}</p><p>Email: ${user.email}</p>`;
+        
+        // Exibir foto de perfil salva
+        if (user.profilePic) {
+            const img = document.createElement('img');
+            img.src = user.profilePic;
+            profilePicDisplay.innerHTML = '';  // Limpa a exibição anterior
+            profilePicDisplay.appendChild(img);
+        }
+
+        // Salvar e exibir a foto de perfil
+        document.getElementById('saveProfilePic').addEventListener('click', function() {
+            const fileInput = document.getElementById('profilePic');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgSrc = e.target.result;
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    img.style.borderRadius = '50%';
+                    profilePicDisplay.innerHTML = ''; // Limpa a exibição anterior
+                    profilePicDisplay.appendChild(img);
+
+                    // Salvar foto de perfil no localStorage
+                    user.profilePic = imgSrc;
+                    localStorage.setItem(user.email, JSON.stringify(user));
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function logout() {
+            // Limpa o localStorage e redireciona para a página de login
+            localStorage.removeItem('loggedInUser');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>

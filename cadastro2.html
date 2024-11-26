@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./cadastro.css">
+    <title>Cadastro de Músicas</title>
+    <script>
+        // Carregar a playlist do localStorage, caso exista
+        let playlist = JSON.parse(localStorage.getItem('playlist')) || [];
+        const likedSongs = JSON.parse(localStorage.getItem('likedSongs')) || [];
+        let currentSongIndex = -1;
+
+        // Função para cadastrar a música
+        function cadastrarMusica() {
+            const nomeMusica = document.getElementById('musicName').value;
+            const artista = document.getElementById('artist').value;
+            const genero = document.getElementById('genre').value;
+            const duracao = document.getElementById('duration').value;
+            const link = document.getElementById('link').value;
+
+            if (nomeMusica && artista && genero && duracao && link) {
+                // Armazenando a música no localStorage
+                playlist.push({ name: nomeMusica, artist: artista, genre: genero, duration: duracao, link: link });
+                localStorage.setItem('playlist', JSON.stringify(playlist));
+
+                // Limpar o formulário
+                document.getElementById('musicForm').reset();
+
+                // Atualizar a lista de músicas cadastradas na tela
+                updatePlaylistDisplay();
+            }
+        }
+
+        // Função para exibir a lista de músicas cadastradas
+        function updatePlaylistDisplay(filter = '') {
+            const playlistElement = document.getElementById('musicList');
+            playlistElement.innerHTML = '';
+            const filteredPlaylist = playlist.filter(song =>
+                song.name.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            filteredPlaylist.forEach((song, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${song.name} - ${song.artist} (${song.genre}, ${song.duration} min)`;
+
+                const playButton = document.createElement('button');
+                playButton.textContent = 'Tocar';
+                playButton.addEventListener('click', () => playSong(index));
+
+                const likeButton = document.createElement('button');
+                likeButton.textContent = likedSongs.includes(song.name) ? 'Descurtir' : 'Curtir';
+                likeButton.addEventListener('click', () => toggleLikeSong(song));
+
+                listItem.appendChild(playButton);
+                listItem.appendChild(likeButton);
+                playlistElement.appendChild(listItem);
+            });
+        }
+
+        // Função para tocar a música selecionada
+        function playSong(index) {
+            currentSongIndex = index;
+            const link = playlist[index].link;
+            const musicPlayer = document.getElementById('musicPlayer');
+            musicPlayer.innerHTML = '';
+
+            // Cria um iframe para o SoundCloud
+            const embed = `<iframe width="100%" height="166" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=${link}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false"></iframe>`;
+            musicPlayer.innerHTML = embed;
+
+            document.getElementById('nextButton').style.display = 'inline';
+        }
+
+        // Função para passar para a próxima música
+        function playNextSong() {
+            if (currentSongIndex < playlist.length - 1) {
+                playSong(currentSongIndex + 1);
+            } else {
+                currentSongIndex = -1;
+                document.getElementById('musicPlayer').innerHTML = '';
+                document.getElementById('nextButton').style.display = 'none';
+            }
+        }
+
+        // Função para limpar a playlist
+        function clearPlaylist() {
+            playlist.length = 0; // Limpa a playlist
+            localStorage.removeItem('playlist'); // Remove a playlist do localStorage
+            updatePlaylistDisplay();
+            document.getElementById('musicPlayer').innerHTML = ''; // Limpa o player
+        }
+
+        // Função para buscar músicas
+        function searchMusic() {
+            const searchQuery = document.getElementById('searchInput').value;
+            updatePlaylistDisplay(searchQuery); // Chama a função com o parâmetro de pesquisa
+        }
+
+        // Função para alternar o estado de curtida de uma música
+        function toggleLikeSong(song) {
+            if (likedSongs.includes(song.name)) {
+                const index = likedSongs.indexOf(song.name);
+                likedSongs.splice(index, 1);
+            } else {
+                likedSongs.push(song.name);
+            }
+            localStorage.setItem('likedSongs', JSON.stringify(likedSongs));
+            updatePlaylistDisplay();
+        }
+
+        // Carregar a playlist ao iniciar a página
+        window.onload = function() {
+            updatePlaylistDisplay();
+        }
+
+        // Função para redirecionar para o link de "Acesse seus Dados"
+        function accessDatabase() {
+            // Caminho relativo para o arquivo 'armazenamento.html' na pasta de acesso de dados
+            window.location.href = 'armazenamento.html'; // Redireciona o usuário
+        }
+
+        // Função para sair da sessão de usuário
+        function logout() {
+            // Limpa o localStorage e redireciona para a página de login
+            localStorage.removeItem('loggedInUser');
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="imagem.png" alt="Strayth" height="20%" width="10%">
+            <nav>
+                <ul>
+                    <li><a href="../SITE-S.A-KK/pesquisa.html">PESQUISA</a></li>
+                    <li><a href="../SITE-S.A-KK/emAlta.html">PÁGINA INICIAL</a></li>
+                    <li><a href="../SITE-S.A-KK/cadastro2.html">CADASTRO DE MÚSICA</a></li>
+                </ul>
+            </nav>
+            <!-- Botão para acessar os dados -->
+            <button id="accessDbBtn" class="add-to-db-btn" onclick="accessDatabase()">Acesse seus Dados</button>
+        </div>
+    </header>
+
+    <h1>Cadastro de Músicas</h1>
+    <form id="musicForm" onsubmit="event.preventDefault(); cadastrarMusica();">
+        <input type="text" id="musicName" placeholder="Nome da música" required>
+        <input type="text" id="artist" placeholder="Artista" required>
+        <input type="text" id="genre" placeholder="Gênero" required>
+        <input type="number" id="duration" placeholder="Duração (min)" required>
+        <input type="text" id="link" placeholder="Link do SoundCloud" required />
+        <button type="submit">Adicionar Música</button>
+    </form>
+
+    <h2>Músicas Cadastradas</h2>
+    <ul id="musicList"></ul>
+
+    <div id="musicPlayer"></div>
+    <button id="nextButton" style="display:none;">Próxima Música</button>
+    <button onclick="clearPlaylist()">Limpar Playlist</button>
+
+    <br><br>
+    <a href="minha_area.html"><button>Ver Músicas Curtidas</button></a>
+
+    <script>
+        // Ação do botão "Sair"
+        document.getElementById('accessDbBtn').addEventListener('click', function() {
+            // Redireciona para a página de acesso de dados
+            window.location.href = 'armazenamento.html'; 
+        });
+    </script>
+    
+</body>
+</html>
